@@ -81,24 +81,78 @@
     }
 
     * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
     body {
       background: var(--ink);
       color: var(--bone);
       font-family: 'Inter', system-ui, sans-serif;
       overflow-x: hidden;
+      max-width: 100%;
     }
 
-    /* Subtle film grain noise overlay */
+    /* Subtle film grain noise overlay - animated for movie grain effect */
+    @keyframes grainAnimation {
+      0%, 100% { transform: translate(0, 0); }
+      10% { transform: translate(-1%, -2%); }
+      20% { transform: translate(-3%, 1%); }
+      30% { transform: translate(2%, -1%); }
+      40% { transform: translate(-2%, 3%); }
+      50% { transform: translate(-1%, 1%); }
+      60% { transform: translate(3%, -1%); }
+      70% { transform: translate(-2%, 2%); }
+      80% { transform: translate(1%, -3%); }
+      90% { transform: translate(-3%, 2%); }
+    }
     body::before {
       content: '';
       position: fixed;
-      inset: 0;
+      top: -10%;
+      left: -10%;
+      width: 120%;
+      height: 120%;
       pointer-events: none;
-      z-index: 1;
-      opacity: 0.035;
+      z-index: 9999;
+      opacity: 0.04;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       mix-blend-mode: overlay;
+      animation: grainAnimation 6s steps(10) infinite;
+      will-change: transform;
+    }
+
+    /* Custom cursor (desktop only) */
+    @media (pointer: fine) {
+      .custom-cursor {
+        position: fixed;
+        width: 6px;
+        height: 6px;
+        background-color: var(--gold);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 10000;
+        transform: translate(-50%, -50%);
+        transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s ease;
+      }
+      .custom-cursor-ring {
+        position: fixed;
+        width: 36px;
+        height: 36px;
+        border: 1px solid rgba(201, 169, 97, 0.45);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1), height 0.3s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.3s ease, background-color 0.3s ease;
+      }
+      .custom-cursor.active {
+        transform: translate(-50%, -50%) scale(0.5);
+        background-color: var(--bone);
+      }
+      .custom-cursor-ring.active {
+        width: 50px;
+        height: 50px;
+        border-color: rgba(245, 241, 232, 0.65);
+        background-color: rgba(245, 241, 232, 0.05);
+      }
     }
 
     .font-serif-italic { font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-weight: 400; }
@@ -190,7 +244,7 @@
     }
     .duo-card:hover .duo-arrow { transform: translateX(8px); }
 
-    /* Buttons */
+    /* Buttons & Arrow animations */
     .btn-primary {
       display: inline-flex;
       align-items: center;
@@ -214,12 +268,59 @@
     }
     .btn-ghost:hover { border-color: var(--bone); background: rgba(245, 241, 232, 0.05); }
 
-    /* Galerie 3x3 */
+    .btn-primary span, .btn-ghost span {
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .btn-primary:hover span, .btn-ghost:hover span {
+      transform: translateX(5px);
+    }
+
+    /* Viewfinder brackets for placeholders */
+    .viewfinder-corner {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: rgba(245, 241, 232, 0.2);
+      transition: border-color 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .group:hover .viewfinder-corner {
+      border-color: var(--gold);
+    }
+    .viewfinder-tl { top: 1.5rem; left: 1.5rem; border-top: 1px solid; border-left: 1px solid; }
+    .viewfinder-tr { top: 1.5rem; right: 1.5rem; border-top: 1px solid; border-right: 1px solid; }
+    .viewfinder-bl { bottom: 1.5rem; left: 1.5rem; border-bottom: 1px solid; border-left: 1px solid; }
+    .viewfinder-br { bottom: 1.5rem; right: 1.5rem; border-bottom: 1px solid; border-right: 1px solid; }
+
+    /* Gallery - Asymmetric editorial layout & overlays */
     .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
     @media (max-width: 900px) { .gallery-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 600px) { .gallery-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; } }
     .gallery-grid > a { aspect-ratio: 1 / 1; }
     .gallery-grid > a > div { height: 100%; }
+
+    @media (min-width: 900px) {
+      .gallery-grid {
+        padding-bottom: 2.5rem;
+      }
+      .gallery-grid > *:nth-child(3n+2) {
+        transform: translateY(2.5rem);
+      }
+    }
+
+    .gallery-overlay {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      padding: 0.75rem;
+      background: linear-gradient(to top, rgba(10, 10, 11, 0.95), transparent);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+    }
+    .group:hover .gallery-overlay {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
     /* Marquee */
     @keyframes marquee {
@@ -376,7 +477,7 @@
 
   <!-- ─────── HERO ─────── -->
   <header class="relative min-h-[100svh] flex items-end overflow-hidden" id="top">
-    <div class="hero-bg"></div>
+    <div class="hero-bg hero-ken-burns"></div>
 
     <!-- Decorative index mark -->
     <div class="absolute top-28 right-6 lg:right-12 z-10 text-[10px] tracking-[0.4em] uppercase text-bone/40 hidden sm:block">
@@ -454,6 +555,7 @@
 
   <!-- ─────── LE DUO (CONCEPT) ─────── -->
   <section id="duo" class="relative z-10 py-24 lg:py-40">
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -z-10 w-[500px] h-[500px] rounded-full bg-gold/5 blur-[120px] pointer-events-none" aria-hidden="true"></div>
     <div class="max-w-[1500px] mx-auto px-6 lg:px-12">
       <div class="grid grid-cols-12 gap-6 lg:gap-12 items-start">
 
@@ -599,7 +701,7 @@
         <a href="javascript:void(0)" class="lightbox-trigger block group" role="button" tabindex="0" aria-label="Ouvrir l'image : Mariage en Bretagne" data-src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1400&fm=webp&q=70">
           <div class="overflow-hidden relative aspect-square">
             <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=700&fm=webp&q=70" alt="Mariage en Bretagne — cérémonie en pleine nature" class="w-full h-full object-cover transition-transform duration-1000 ease-cinema group-hover:scale-[1.04]" loading="lazy" decoding="async" />
-            <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-ink/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <div class="gallery-overlay">
               <div class="text-[10px] tracking-[0.2em] uppercase text-bone/80">Photo · Mariage</div>
             </div>
           </div>
@@ -607,7 +709,7 @@
         <a href="javascript:void(0)" class="lightbox-trigger block group" role="button" tabindex="0" aria-label="Ouvrir l'image : Portrait lifestyle" data-src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=1400&fm=webp&q=70">
           <div class="overflow-hidden relative aspect-square">
             <img src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=700&fm=webp&q=70" alt="Portrait lifestyle en lumière naturelle" class="w-full h-full object-cover transition-transform duration-1000 ease-cinema group-hover:scale-[1.04]" loading="lazy" decoding="async" />
-            <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-ink/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <div class="gallery-overlay">
               <div class="text-[10px] tracking-[0.2em] uppercase text-bone/80">Photo · Portrait</div>
             </div>
           </div>
@@ -615,7 +717,7 @@
         <a href="javascript:void(0)" class="lightbox-trigger block group" role="button" tabindex="0" aria-label="Ouvrir l'image : Couple dans la lumière" data-src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=1400&fm=webp&q=70">
           <div class="overflow-hidden relative aspect-square">
             <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=700&fm=webp&q=70" alt="Couple dans la lumière du soir" class="w-full h-full object-cover transition-transform duration-1000 ease-cinema group-hover:scale-[1.04]" loading="lazy" decoding="async" />
-            <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-ink/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <div class="gallery-overlay">
               <div class="text-[10px] tracking-[0.2em] uppercase text-bone/80">Photo · Mariage</div>
             </div>
           </div>
@@ -623,7 +725,7 @@
         <a href="javascript:void(0)" class="lightbox-trigger block group" role="button" tabindex="0" aria-label="Ouvrir l'image : Baiser de mariés" data-src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1400&fm=webp&q=70">
           <div class="overflow-hidden relative aspect-square">
             <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=700&fm=webp&q=70" alt="Baiser de mariés" class="w-full h-full object-cover transition-transform duration-1000 ease-cinema group-hover:scale-[1.04]" loading="lazy" decoding="async" />
-            <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-ink/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <div class="gallery-overlay">
               <div class="text-[10px] tracking-[0.2em] uppercase text-bone/80">Photo · Mariage</div>
             </div>
           </div>
@@ -631,7 +733,7 @@
         <a href="javascript:void(0)" class="lightbox-trigger block group" role="button" tabindex="0" aria-label="Ouvrir l'image : Portrait studio" data-src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1400&fm=webp&q=70">
           <div class="overflow-hidden relative aspect-square">
             <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=700&fm=webp&q=70" alt="Séance portrait studio" class="w-full h-full object-cover transition-transform duration-1000 ease-cinema group-hover:scale-[1.04]" loading="lazy" decoding="async" />
-            <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-ink/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <div class="gallery-overlay">
               <div class="text-[10px] tracking-[0.2em] uppercase text-bone/80">Photo · Studio</div>
             </div>
           </div>
@@ -639,7 +741,7 @@
         <a href="javascript:void(0)" class="lightbox-trigger block group" role="button" tabindex="0" aria-label="Ouvrir l'image : Réunion d'équipe" data-src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1400&fm=webp&q=70">
           <div class="overflow-hidden relative aspect-square">
             <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=700&fm=webp&q=70" alt="Réunion d'équipe en entreprise" class="w-full h-full object-cover transition-transform duration-1000 ease-cinema group-hover:scale-[1.04]" loading="lazy" decoding="async" />
-            <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-ink/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <div class="gallery-overlay">
               <div class="text-[10px] tracking-[0.2em] uppercase text-bone/80">Photo · Corporate</div>
             </div>
           </div>
@@ -647,7 +749,7 @@
         <a href="javascript:void(0)" class="lightbox-trigger block group" role="button" tabindex="0" aria-label="Ouvrir l'image : Photographie culinaire" data-src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1400&fm=webp&q=70">
           <div class="overflow-hidden relative aspect-square">
             <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=700&fm=webp&q=70" alt="Photographie culinaire — assiette gastronomique" class="w-full h-full object-cover transition-transform duration-1000 ease-cinema group-hover:scale-[1.04]" loading="lazy" decoding="async" />
-            <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-ink/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <div class="gallery-overlay">
               <div class="text-[10px] tracking-[0.2em] uppercase text-bone/80">Photo · Food</div>
             </div>
           </div>
@@ -655,7 +757,7 @@
         <a href="javascript:void(0)" class="lightbox-trigger block group" role="button" tabindex="0" aria-label="Ouvrir l'image : Couple en bord de mer" data-src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1400&fm=webp&q=70">
           <div class="overflow-hidden relative aspect-square">
             <img src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=700&fm=webp&q=70" alt="Couple en bord de mer" class="w-full h-full object-cover transition-transform duration-1000 ease-cinema group-hover:scale-[1.04]" loading="lazy" decoding="async" />
-            <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-ink/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <div class="gallery-overlay">
               <div class="text-[10px] tracking-[0.2em] uppercase text-bone/80">Photo · Lifestyle</div>
             </div>
           </div>
@@ -663,7 +765,7 @@
         <a href="javascript:void(0)" class="lightbox-trigger block group" role="button" tabindex="0" aria-label="Ouvrir l'image : Cérémonie de mariage" data-src="https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=1400&fm=webp&q=70">
           <div class="overflow-hidden relative aspect-square">
             <img src="https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=700&fm=webp&q=70" alt="Cérémonie de mariage" class="w-full h-full object-cover transition-transform duration-1000 ease-cinema group-hover:scale-[1.04]" loading="lazy" decoding="async" />
-            <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-ink/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <div class="gallery-overlay">
               <div class="text-[10px] tracking-[0.2em] uppercase text-bone/80">Photo · Mariage</div>
             </div>
           </div>
@@ -682,6 +784,7 @@
 
   <!-- ─────── À PROPOS ─────── -->
   <section id="apropos" class="relative z-10 py-24 lg:py-36 border-t hairline">
+    <div class="absolute top-1/2 left-1/4 -translate-y-1/2 -z-10 w-[600px] h-[600px] rounded-full bg-gold/5 blur-[130px] pointer-events-none" aria-hidden="true"></div>
     <div class="max-w-[1500px] mx-auto px-6 lg:px-12">
       <div class="grid grid-cols-12 gap-6 lg:gap-12 items-center">
 
@@ -689,6 +792,11 @@
         <div class="col-span-12 md:col-span-5 reveal">
           <div class="overflow-hidden bg-charcoal relative group" style="aspect-ratio: 853 / 1280;">
             <img src="assets/yannick.jpg" alt="Portrait de Yannick, photographe du duo" class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" decoding="async" />
+            <!-- Viewfinder corners -->
+            <div class="viewfinder-corner viewfinder-tl"></div>
+            <div class="viewfinder-corner viewfinder-tr"></div>
+            <div class="viewfinder-corner viewfinder-bl"></div>
+            <div class="viewfinder-corner viewfinder-br"></div>
           </div>
           <div class="mt-5 flex items-baseline justify-between">
             <div>
@@ -701,13 +809,18 @@
         <!-- Matthieu -->
         <div class="col-span-12 md:col-span-5 md:col-start-8 reveal">
           <div class="overflow-hidden bg-charcoal relative group" style="aspect-ratio: 853 / 1280;">
+            <!-- Viewfinder corners -->
+            <div class="viewfinder-corner viewfinder-tl"></div>
+            <div class="viewfinder-corner viewfinder-tr"></div>
+            <div class="viewfinder-corner viewfinder-bl"></div>
+            <div class="viewfinder-corner viewfinder-br"></div>
             <!-- Monogram placeholder — pas de fausse photo de Matthieu -->
             <div class="absolute inset-0 flex items-center justify-center">
-              <div class="text-center">
-                <div class="font-serif text-[clamp(8rem,18vw,16rem)] leading-none text-bone/15 group-hover:text-bone/30 transition-colors duration-700">M</div>
+              <div class="text-center transition-transform duration-1000 group-hover:scale-110">
+                <div class="font-serif text-[clamp(8rem,18vw,16rem)] leading-none text-bone/15 group-hover:text-gold/30 transition-colors duration-700">M</div>
               </div>
             </div>
-            <div class="absolute bottom-4 left-4 text-[10px] tracking-[0.2em] uppercase text-bone/30">Photo à venir</div>
+            <div class="absolute bottom-4 left-4 text-[10px] tracking-[0.2em] uppercase text-bone/35 group-hover:text-gold/50 transition-colors">Photo à venir</div>
           </div>
           <div class="mt-5 flex items-baseline justify-between">
             <div>
@@ -1079,6 +1192,52 @@
       const bg = document.querySelector('.hero-bg');
       if (bg) bg.style.transform = `translateY(${y * 0.25}px) scale(${1 + ratio * 0.04})`;
     }, { passive: true });
+
+    // Custom cursor (desktop only)
+    if (window.matchMedia('(pointer: fine)').matches) {
+      const cursor = document.createElement('div');
+      cursor.id = 'custom-cursor';
+      cursor.className = 'custom-cursor';
+      const ring = document.createElement('div');
+      ring.id = 'custom-cursor-ring';
+      ring.className = 'custom-cursor-ring';
+      document.body.appendChild(cursor);
+      document.body.appendChild(ring);
+
+      let mouseX = -100, mouseY = -100;
+      let ringX = -100, ringY = -100;
+
+      window.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        cursor.style.left = mouseX + 'px';
+        cursor.style.top = mouseY + 'px';
+      });
+
+      const tick = () => {
+        ringX += (mouseX - ringX) * 0.15;
+        ringY += (mouseY - ringY) * 0.15;
+        ring.style.left = ringX + 'px';
+        ring.style.top = ringY + 'px';
+        requestAnimationFrame(tick);
+      };
+      tick();
+
+      const updateHoverables = () => {
+        const hoverables = document.querySelectorAll('a, button, select, input, textarea, .lightbox-trigger');
+        hoverables.forEach(el => {
+          el.addEventListener('mouseenter', () => {
+            cursor.classList.add('active');
+            ring.classList.add('active');
+          });
+          el.addEventListener('mouseleave', () => {
+            cursor.classList.remove('active');
+            ring.classList.remove('active');
+          });
+        });
+      };
+      updateHoverables();
+    }
   </script>
 </body>
 </html>
