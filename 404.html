@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page introuvable - Yannick &amp; Matthieu</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+  <meta name="theme-color" content="#0a0a0b" />
+  <link rel="stylesheet" href="assets/fonts/fonts.css" />
+  <link rel="stylesheet" href="dist/tailwind.css" />
+  <style>
+    :root { --ink:#0a0a0b; --smoke:#8a8a90; --bone:#f5f1e8; --gold:#c9a961; --hairline:rgba(245,241,232,.08); }
+    *{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    body{ background:var(--ink); color:var(--bone); font-family:'Inter',system-ui,sans-serif; }
+    .font-serif-italic{ font-family:'Playfair Display',Georgia,serif; font-style:italic; font-weight:400; }
+    .btn-primary{ display:inline-flex; align-items:center; gap:.75rem; padding:1rem 1.75rem; background:var(--bone); color:var(--ink); font-weight:500; letter-spacing:.02em; transition:all .4s cubic-bezier(.22,1,.36,1); }
+    .btn-primary:hover{ background:var(--gold); }
+    .btn-ghost{ display:inline-flex; align-items:center; gap:.75rem; padding:1rem 1.75rem; border:1px solid var(--hairline); color:var(--bone); transition:all .4s ease; }
+    .btn-ghost:hover{ border-color:var(--bone); background:rgba(245,241,232,.05); }
+    a:focus-visible, button:focus-visible { outline:2px solid var(--gold); outline-offset:3px; border-radius:1px; }
+    ::selection{ background:var(--gold); color:var(--ink); }
+  </style>
+</head>
+<body class="font-sans bg-ink text-bone">
+  <main class="min-h-screen flex flex-col items-center justify-center text-center px-6">
+    <div class="flex items-center gap-3 mb-8">
+      <span class="w-10 h-px bg-bone/40"></span>
+      <span class="text-[11px] tracking-[0.32em] uppercase text-bone/70">Erreur 404</span>
+      <span class="w-10 h-px bg-bone/40"></span>
+    </div>
+    <h1 class="font-serif text-[clamp(3rem,12vw,8rem)] leading-[0.95] font-medium">
+      Cette page<br /><span class="font-serif-italic text-bone/90">n'existe pas.</span>
+    </h1>
+    <p class="mt-8 max-w-md text-bone/70 text-[15px] leading-[1.7]">
+      Le lien est peut-etre casse, ou la page a ete deplacee. Pas de panique, on vous ramene a bon port.
+    </p>
+    <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
+      <a href="index.html" class="btn-primary">
+        Retour a l'accueil
+        <span aria-hidden="true">&rarr;</span>
+      </a>
+      <a href="prestations.html" class="btn-ghost">
+        Voir les prestations
+      </a>
+    </div>
+    <a href="mailto:contact@mldphotographie.fr" class="mt-12 text-[13px] text-smoke hover:text-bone transition-colors">contact@mldphotographie.fr</a>
+  </main>
+</body>
+</html>
